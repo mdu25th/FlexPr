@@ -355,10 +355,13 @@
         </div>
 
         <!-- User Profile Pill -->
-        <div class="text-center">
+        <div class="text-center mb-3">
             <div class="user-pill" id="userPill">
                 <img id="userAvatar" src="https://static.line-scdn.net/line_common/image/favicon.ico" alt="Avatar">
                 <span id="userName" class="fw-semibold">กำลังเชื่อมต่อ LINE...</span>
+                <button type="button" class="btn btn-link text-danger p-0 ms-2 d-none" id="btnLogout" title="ออกจากระบบ LINE" onclick="handleLogout()" style="text-decoration: none; font-size: 0.82rem;">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
 
@@ -543,33 +546,78 @@
         });
 
         async function initLiffApp() {
+            setLoader(true, "กำลังเชื่อมต่อ LINE...", "กรุณารอสักครู่ ระบบกำลังตรวจสอบสิทธิ์การใช้งาน");
             try {
                 if (typeof liff === 'undefined') {
-                    console.warn("LIFF SDK not loaded");
-                    document.getElementById('userName').innerText = "โหมดพัฒนา (Preview Only)";
-                    return;
+                    throw new Error("ไม่สามารถโหลด LINE LIFF SDK ได้ กรุณาตรวจสอบอินเทอร์เน็ต");
                 }
 
                 await liff.init({ liffId: LIFF_ID });
 
-                if (liff.isLoggedIn()) {
-                    userProfile = await liff.getProfile();
-                    document.getElementById('userName').innerText = userProfile.displayName;
-                    if (userProfile.pictureUrl) {
-                        document.getElementById('userAvatar').src = userProfile.pictureUrl;
-                    }
-                } else {
-                    // หากไม่ได้รันใน LINE Client ให้รองรับโหมด External Login
-                    if (liff.isInClient()) {
-                        liff.login();
-                    } else {
-                        document.getElementById('userName').innerText = "ผู้ใช้ทั่วไป (ไม่ได้ล็อกอิน)";
-                    }
+                // บังคับล็อกอินผ่าน LINE เสมอ ไม่ว่าจะเปิดผ่านแอป LINE หรือเบราว์เซอร์ภายนอก
+                if (!liff.isLoggedIn()) {
+                    setLoader(true, "กำลังเข้าสู่ระบบ LINE...", "กำลังนำคุณไปยังหน้าล็อกอินของ LINE Official");
+                    // ส่ง redirectUri เป็น URL ปัจจุบันเพื่อให้หลังล็อกอินเสร็จกลับมาที่เดิม
+                    liff.login({ redirectUri: window.location.href });
+                    return;
                 }
+
+                // เมื่อเข้าสู่ระบบสำเร็จ ดึงข้อมูลโปรไฟล์ผู้ใช้
+                userProfile = await liff.getProfile();
+                document.getElementById('userName').innerText = userProfile.displayName;
+                if (userProfile.pictureUrl) {
+                    document.getElementById('userAvatar').src = userProfile.pictureUrl;
+                }
+                
+                // แสดงปุ่ม Logout เพื่อให้สลับบัญชีได้
+                const logoutBtn = document.getElementById('btnLogout');
+                if (logoutBtn) logoutBtn.classList.remove('d-none');
+
+                setLoader(false);
+
             } catch (err) {
+                setLoader(false);
                 console.error("LIFF Init Error:", err);
-                document.getElementById('userName').innerText = "LIFF Guest Mode";
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'การเข้าสู่ระบบ LINE ขัดข้อง',
+                    html: `
+                        <p class="text-secondary small mb-2">ไม่สามารถเชื่อมต่อกับ LINE ได้: <br><b>${err.message || err}</b></p>
+                        <div class="alert alert-warning text-start small p-2 mb-3">
+                            <i class="fas fa-circle-info me-1"></i> <b>สำหรับผู้พัฒนา / ผู้ดูแลระบบ:</b><br>
+                            1. ตรวจสอบว่าใน LINE Developers ได้ใส่ <b>Endpoint URL</b> ตรงกับ URL ของหน้านี้หรือไม่<br>
+                            2. หากทดสอบผ่าน Web ภายนอก ต้องใส่ URL ใน <b>Allowed Callback URLs</b><br>
+                            3. ตรวจสอบว่า <code>LIFF_ID</code> ถูกต้องและ Channel เป็นสถานะ Published
+                        </div>
+                        <button class="btn btn-sm btn-success w-100 py-2 fw-bold rounded-pill" onclick="window.location.reload()">
+                            <i class="fas fa-rotate-right me-1"></i> ลองใหม่อีกครั้ง
+                        </button>
+                    `,
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
             }
+        }
+
+        function handleLogout() {
+            Swal.fire({
+                title: 'ออกจากระบบ LINE?',
+                text: 'คุณต้องการออกจากระบบและสลับบัญชีใช่หรือไม่?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
+                        liff.logout();
+                    }
+                    window.location.reload();
+                }
+            });
         }
 
         // ================= RESHARE CHECKER =================
