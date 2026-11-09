@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบ Flex Share นพค.25 - LINE Share Target Picker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 Pro / Free CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --line-green: #06C755;
+            --line-green-dark: #05a346;
+            --line-green-light: #e6f9ee;
+            --line-bg: #8c9cad;
+            --bubble-bg: #ffffff;
+            --card-radius: 24px;
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0b1e13 0%, #112a1c 50%, #121820 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: #2c3e50;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            padding: 24px 22px;
+        }
+
+        /* Top Header Card */
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-weight: 800;
+            font-size: 1.45rem;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .app-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        /* User Profile Pill */
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 4px 12px 4px 4px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+            max-width: 100%;
+            font-size: 0.82rem;
+            color: #334155;
+        }
+
+        .user-pill img {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            border: 1.5px solid var(--line-green);
+        }
+
+        /* Segmented Media Selector */
+        .type-segmented {
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 14px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .type-segmented .btn-type {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 9px 4px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .type-segmented .btn-type.active {
+            background: #ffffff;
+            color: var(--line-green-dark);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            padding: 10px 14px;
+            font-size: 0.92rem;
+            transition: var(--transition-smooth);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--line-green);
+            box-shadow: 0 0 0 3.5px rgba(6, 199, 85, 0.15);
+        }
+
+        /* Mode Switch Pill */
+        .upload-switch-card {
+            background: #f0fdf4;
+            border: 1.5px dashed #86efac;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--line-green);
+            border-color: var(--line-green);
+        }
+
+        /* Presets Dropdown Bar */
+        .preset-bar {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* LINE Chat Message Simulator (High Fidelity Preview) */
+        .simulator-container {
+            background: #849eb3; /* สีพื้นหลังห้องแชท LINE */
+            border-radius: 16px;
+            padding: 14px;
+            margin: 18px 0;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .simulator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .line-bubble-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            max-width: 320px;
+            margin: 0 auto;
+            transition: var(--transition-smooth);
+        }
+
+        .line-hero-frame {
+            width: 100%;
+            background: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .line-hero-frame img, .line-hero-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .line-hero-placeholder {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .line-share-button-preview {
+            padding: 10px 14px;
+            background: #ffffff;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .line-btn-mock {
+            background: var(--line-green);
+            color: white;
+            font-size: 0.86rem;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(6, 199, 85, 0.25);
+        }
+
+        /* Action Primary Button */
+        .btn-send-main {
+            background: linear-gradient(135deg, #06C755 0%, #05a346 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            padding: 14px 20px;
+            border-radius: 50px;
+            width: 100%;
+            box-shadow: 0 8px 20px rgba(6, 199, 85, 0.35);
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-send-main:hover, .btn-send-main:active {
+            transform: translateY(-1.5px);
+            box-shadow: 0 12px 24px rgba(6, 199, 85, 0.45);
+            color: #ffffff;
+        }
+
+        /* Loader Overlay */
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(6px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: var(--card-radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .spinner-custom {
+            width: 3.5rem;
+            height: 3.5rem;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid var(--line-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Reshare mode banner */
+        .reshare-banner {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Aspect ratio ratios */
+        .ratio-1-1, .ratio-1_1 { aspect-ratio: 1 / 1; }
+        .ratio-1_51-1, .ratio-1_51_1 { aspect-ratio: 1.51 / 1; }
+        .ratio-1_91-1, .ratio-1_91_1 { aspect-ratio: 1.91 / 1; }
+        .ratio-4-3, .ratio-4_3 { aspect-ratio: 4 / 3; }
+        .ratio-16-9, .ratio-16_9 { aspect-ratio: 16 / 9; }
+        .ratio-20-13, .ratio-20_13 { aspect-ratio: 20 / 13; }
+        .ratio-9-16, .ratio-9_16 { aspect-ratio: 9 / 16; }
+        .ratio-3-4, .ratio-3_4 { aspect-ratio: 3 / 4; }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- Loader Modal Overlay -->
+        <div class="loader-overlay" id="loader">
+            <div class="spinner-custom mb-3"></div>
+            <h5 class="fw-bold text-dark mb-1" id="loaderTitle">กำลังประมวลผล...</h5>
+            <p class="text-secondary small mb-0" id="loaderText">กรุณารอสักครู่ ระบบกำลังจัดเตรียมข้อมูล Flex</p>
+        </div>
+
+        <!-- Header -->
+        <div class="app-header">
+            <div class="app-title">
+                <i class="fab fa-line text-success fs-2"></i>
+                <span>ระบบ Flex Share นพค.25</span>
+            </div>
+            <div class="app-subtitle">แชร์ภาพและสื่อ Flex สวยงามผ่าน LINE Share Target Picker</div>
+        </div>
+
+        <!-- User Profile Pill -->
+        <div class="text-center">
+            <div class="user-pill" id="userPill">
+                <img id="userAvatar" src="https://static.line-scdn.net/line_common/image/favicon.ico" alt="Avatar">
+                <span id="userName" class="fw-semibold">กำลังเชื่อมต่อ LINE...</span>
+            </div>
+        </div>
+
+        <!-- ================= MAIN EDIT MODE ================= -->
+        <div id="mainForm">
+            <!-- Media Type Selector -->
+            <label class="form-label"><i class="fas fa-layer-group me-1 text-success"></i> รูปแบบสื่อที่ต้องการส่ง</label>
+            <div class="type-segmented">
+                <button type="button" class="btn-type active" id="btnTypeImage" onclick="selectMediaType('image')">
+                    <i class="fas fa-image"></i> รูปภาพ
+                </button>
+                <button type="button" class="btn-type" id="btnTypeVideo" onclick="selectMediaType('video')">
+                    <i class="fas fa-video"></i> วิดีโอ
+                </button>
+                <button type="button" class="btn-type" id="btnTypeJson" onclick="selectMediaType('json')">
+                    <i class="fas fa-code"></i> JSON Flex
+                </button>
+            </div>
+
+            <!-- Preset Selector -->
+            <div class="preset-bar">
+                <i class="fas fa-magic text-warning"></i>
+                <select class="form-select form-select-sm border-0 bg-transparent fw-semibold" id="presetSelect" onchange="applyPreset(this.value)">
+                    <option value="">⚡ เลือกแม่แบบสำเร็จรูป (Presets)...</option>
+                    <option value="announcement">📢 ประชาสัมพันธ์ข่าวสาร (1.51:1)</option>
+                    <option value="portrait_3_4">📸 ภาพแนวตั้ง Portrait (3:4)</option>
+                    <option value="poster">📱 โปสเตอร์แนวตั้ง Story (9:16)</option>
+                    <option value="square">🛍️ แบนเนอร์จัตุรัสสินค้า (1:1)</option>
+                    <option value="video_card">🎬 การ์ดวิดีโอพร้อมปก (16:9)</option>
+                </select>
+            </div>
+
+            <!-- Dynamic Input Sections -->
+            <div id="imageSection">
+                <div class="upload-switch-card">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-cloud-arrow-up text-success fs-5"></i>
+                        <div>
+                            <div class="fw-bold text-dark small">อัปโหลดไฟล์จากเครื่อง</div>
+                            <div class="text-secondary" style="font-size: 0.72rem;">แปลงเป็น Direct CDN URL อัตโนมัติ</div>
+                        </div>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="uploadModeSwitch" onchange="toggleImageMode()">
+                    </div>
+                </div>
+
+                <div id="imageUrlBox">
+                    <label class="form-label">URL รูปภาพ (HTTPS)</label>
+                    <input type="url" class="form-control" id="mediaUrl" placeholder="https://example.com/banner.jpg" oninput="onInputChanged()">
+                </div>
+
+                <div id="imageUploadBox" class="d-none">
+                    <label class="form-label">เลือกไฟล์รูปภาพ (JPG, PNG, WEBP)</label>
+                    <input type="file" class="form-control" id="mediaFile" accept="image/*" onchange="onFileSelected(event)">
+                    <div class="form-text small text-muted">ระบบบีบอัดรูปภาพให้อัตโนมัติ เพื่อส่งได้รวดเร็วทันใจ</div>
+                </div>
+            </div>
+
+            <div id="videoSection" class="d-none">
+                <div class="mb-3">
+                    <label class="form-label">URL วิดีโอตรง (.mp4)</label>
+                    <input type="url" class="form-control" id="videoUrl" placeholder="https://example.com/video.mp4" oninput="onInputChanged()">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">URL ภาพปกวิดีโอ (Preview Image)</label>
+                    <input type="url" class="form-control" id="videoPreviewUrl" placeholder="https://example.com/cover.jpg" oninput="onInputChanged()">
+                </div>
+            </div>
+
+            <div id="jsonSection" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label m-0">Flex Message JSON Code</label>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success" onclick="formatJsonInput()">
+                        <i class="fas fa-align-left"></i> Format JSON
+                    </button>
+                </div>
+                <textarea class="form-control font-monospace small" id="jsonInput" rows="6" placeholder='{"type": "bubble", ...}' oninput="onJsonInputChanged()"></textarea>
+            </div>
+
+            <!-- Aspect Ratio Selector -->
+            <div class="mt-3" id="ratioWrapper">
+                <label class="form-label"><i class="fas fa-crop-simple me-1 text-success"></i> สัดส่วนรูปภาพ (Aspect Ratio)</label>
+                <select class="form-select" id="aspectRatio" onchange="onAspectRatioChanged()">
+                    <option value="1.51:1" selected>1.51:1 (มาตรฐาน LINE แนวนอน)</option>
+                    <option value="1:1">1:1 (สี่เหลี่ยมจัตุรัส Square)</option>
+                    <option value="3:4">3:4 (แนวตั้ง Portrait ยอดนิยม)</option>
+                    <option value="1.91:1">1.91:1 (แบนเนอร์กว้าง Wide)</option>
+                    <option value="4:3">4:3 (ขนาดมาตรฐาน 4:3)</option>
+                    <option value="16:9">16:9 (สัดส่วนภาพยนตร์ / วิดีโอ)</option>
+                    <option value="20:13">20:13 (ขนาดการ์ด LINE Carousel)</option>
+                    <option value="9:16">9:16 (โปสเตอร์แนวตั้ง Story)</option>
+                </select>
+            </div>
+
+            <!-- Viral Loop Share Option -->
+            <div class="card bg-light border-0 my-3">
+                <div class="card-body p-3">
+                    <div class="form-check form-switch d-flex align-items-center justify-content-between p-0 m-0">
+                        <label class="form-check-label fw-bold text-dark" for="allowShare">
+                            <i class="fas fa-retweet text-success me-1"></i> อนุญาตให้ส่งต่อ (Viral Share)
+                        </label>
+                        <input class="form-check-input ms-0" type="checkbox" id="allowShare" checked onchange="updateSimulator()">
+                    </div>
+                    <div class="text-secondary small mt-1" style="font-size: 0.76rem;">
+                        เพิ่มปุ่ม "ส่งต่อให้เพื่อน" ที่ท้ายการ์ด เพื่อให้ผู้รับสามารถกดแชร์ต่อไปยังกลุ่มอื่นได้ทันที
+                    </div>
+                </div>
+            </div>
+
+            <!-- LINE Bubble Simulator (Interactive Preview) -->
+            <div class="simulator-container">
+                <div class="simulator-header">
+                    <span><i class="fab fa-line me-1"></i> ตัวอย่างข้อความใน LINE</span>
+                    <span id="simulatorRatioLabel" class="badge bg-dark">1.51:1</span>
+                </div>
+                <div class="line-bubble-card">
+                    <div class="line-hero-frame ratio-1_51-1" id="simHeroFrame">
+                        <div class="line-hero-placeholder" id="simPlaceholder">
+                            <i class="fas fa-image fs-1 mb-2"></i>
+                            <div>กรุณาใส่ URL หรือเลือกรูปเพื่อดูตัวอย่าง</div>
+                        </div>
+                        <img id="simImage" src="" alt="Hero" style="display: none;">
+                        <video id="simVideo" controls src="" style="display: none;"></video>
+                    </div>
+                    <div class="line-share-button-preview" id="simFooter">
+                        <div class="line-btn-mock">
+                            <i class="fas fa-share-nodes"></i> ส่งต่อให้เพื่อน (Share)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Submit Button -->
+            <button type="button" class="btn-send-main" onclick="handleSendAction()">
+                <i class="fas fa-paper-plane"></i> เลือกผู้รับและแชร์ (Share Target Picker)
+            </button>
+        </div>
+
+        <!-- ================= RESHARE FORWARD MODE ================= -->
+        <div id="reshareMode" class="d-none">
+            <div class="reshare-banner">
+                <i class="fas fa-share-nodes text-primary fs-3 mb-2"></i>
+                <h5 class="fw-bold text-dark mb-1">ส่งต่อข้อความ (Fast Share)</h5>
+                <p class="text-secondary small mb-0">คุณกำลังส่งต่อข้อความนี้ไปยังแชทหรือกลุ่มอื่นบน LINE</p>
+            </div>
+
+            <div class="simulator-container">
+                <div class="line-bubble-card">
+                    <div class="line-hero-frame" id="reshareHeroFrame">
+                        <img id="resharePreviewImg" src="" alt="Reshare Content" style="max-height: 280px; width:100%; object-fit:cover;">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn-send-main mt-3" onclick="executeReshare()">
+                <i class="fas fa-share-alt"></i> เลือกห้องแชทและส่งต่อทันที
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // ================= CONFIGURATION =================
+        const LIFF_ID = "2008762104-YUo0QPLe"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykcavdMQWhw4fIJvRKMDz1YNjbqCdQhsXwA2TuGHpLMY644mNtujtYhmZsV3gre-n8/exec";
+
+        let currentMediaType = 'image';
+        let userProfile = null;
+        let selectedFileBase64 = null;
+        let urlParams = new URLSearchParams(window.location.search);
+        let isReshareMode = false;
+        let reshareData = {};
+
+        // ================= INITIALIZATION =================
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initLiffApp();
+            checkReshareWorkflow();
+        });
+
+        async function initLiffApp() {
+            try {
+                if (typeof liff === 'undefined') {
+                    console.warn("LIFF SDK not loaded");
+                    document.getElementById('userName').innerText = "โหมดพัฒนา (Preview Only)";
+                    return;
+                }
+
+                await liff.init({ liffId: LIFF_ID });
+
+                if (liff.isLoggedIn()) {
+                    userProfile = await liff.getProfile();
+                    document.getElementById('userName').innerText = userProfile.displayName;
+                    if (userProfile.pictureUrl) {
+                        document.getElementById('userAvatar').src = userProfile.pictureUrl;
+                    }
+                } else {
+                    // หากไม่ได้รันใน LINE Client ให้รองรับโหมด External Login
+                    if (liff.isInClient()) {
+                        liff.login();
+                    } else {
+                        document.getElementById('userName').innerText = "ผู้ใช้ทั่วไป (ไม่ได้ล็อกอิน)";
+                    }
+                }
+            } catch (err) {
+                console.error("LIFF Init Error:", err);
+                document.getElementById('userName').innerText = "LIFF Guest Mode";
+            }
+        }
+
+        // ================= RESHARE CHECKER =================
+        function checkReshareWorkflow() {
+            const action = urlParams.get('action');
+            if (action === 'reshare') {
+                isReshareMode = true;
+                document.getElementById('mainForm').classList.add('d-none');
+                document.getElementById('reshareMode').classList.remove('d-none');
+
+                reshareData = {
+                    type: urlParams.get('type') || 'image',
+                    content: decodeURIComponent(urlParams.get('content') || ''),
+                    ratio: urlParams.get('ratio') || '1.51:1',
+                    preview: decodeURIComponent(urlParams.get('preview') || '')
+                };
+
+                const reshareImg = document.getElementById('resharePreviewImg');
+                if (reshareData.type === 'video') {
+                    reshareImg.src = reshareData.preview || reshareData.content;
+                } else if (reshareData.type === 'image') {
+                    reshareImg.src = reshareData.content;
+                } else {
+                    reshareImg.src = "https://placehold.co/600x400/06C755/white?text=JSON+Flex+Message";
+                }
+            }
+        }
+
+        // ================= UI CONTROLS =================
+        function selectMediaType(type) {
+            currentMediaType = type;
+            
+            // ปรับปุ่ม Segmented
+            document.querySelectorAll('.type-segmented .btn-type').forEach(btn => btn.classList.remove('active'));
+            if (type === 'image') document.getElementById('btnTypeImage').classList.add('active');
+            if (type === 'video') document.getElementById('btnTypeVideo').classList.add('active');
+            if (type === 'json') document.getElementById('btnTypeJson').classList.add('active');
+
+            // แสดง/ซ่อน Section
+            document.getElementById('imageSection').classList.toggle('d-none', type !== 'image');
+            document.getElementById('videoSection').classList.toggle('d-none', type !== 'video');
+            document.getElementById('jsonSection').classList.toggle('d-none', type !== 'json');
+            document.getElementById('ratioWrapper').classList.toggle('d-none', type === 'json');
+
+            updateSimulator();
+        }
+
+        function toggleImageMode() {
+            const isUpload = document.getElementById('uploadModeSwitch').checked;
+            document.getElementById('imageUrlBox').classList.toggle('d-none', isUpload);
+            document.getElementById('imageUploadBox').classList.toggle('d-none', !isUpload);
+            
+            selectedFileBase64 = null;
+            document.getElementById('mediaFile').value = '';
+            updateSimulator();
+        }
+
+        function onAspectRatioChanged() {
+            const ratio = document.getElementById('aspectRatio').value;
+            document.getElementById('simulatorRatioLabel').innerText = ratio;
+            
+            const frame = document.getElementById('simHeroFrame');
+            // รีเซ็ตคลาส ratio ทั้งหมด
+            frame.className = 'line-hero-frame';
+            const cssRatioClass = 'ratio-' + ratio.replace(/[:.]/g, '_');
+            frame.classList.add(cssRatioClass);
+        }
+
+        // ================= PRESETS =================
+        function applyPreset(presetKey) {
+            if (!presetKey) return;
+
+            if (presetKey === 'announcement') {
+                selectMediaType('image');
+                document.getElementById('uploadModeSwitch').checked = false;
+                toggleImageMode();
+                document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '1.51:1';
+            } else if (presetKey === 'portrait_3_4') {
+                selectMediaType('image');
+                document.getElementById('uploadModeSwitch').checked = false;
+                toggleImageMode();
+                document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '3:4';
+            } else if (presetKey === 'poster') {
+                selectMediaType('image');
+                document.getElementById('uploadModeSwitch').checked = false;
+                toggleImageMode();
+                document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '9:16';
+            } else if (presetKey === 'square') {
+                selectMediaType('image');
+                document.getElementById('uploadModeSwitch').checked = false;
+                toggleImageMode();
+                document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '1:1';
+            } else if (presetKey === 'video_card') {
+                selectMediaType('video');
+                document.getElementById('videoUrl').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+                document.getElementById('videoPreviewUrl').value = 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '16:9';
+            }
+
+            onAspectRatioChanged();
+            updateSimulator();
+        }
+
+        // ================= LIVE SIMULATOR UPDATES =================
+        function onInputChanged() {
+            updateSimulator();
+        }
+
+        function onFileSelected(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                selectedFileBase64 = event.target.result;
+                updateSimulator();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function onJsonInputChanged() {
+            updateSimulator();
+        }
+
+        function formatJsonInput() {
+            const input = document.getElementById('jsonInput');
+            try {
+                const parsed = JSON.parse(input.value);
+                input.value = JSON.stringify(parsed, null, 2);
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาด', 'รูปแบบ JSON ไม่ถูกต้อง: ' + err.message, 'warning');
+            }
+        }
+
+        function updateSimulator() {
+            const placeholder = document.getElementById('simPlaceholder');
+            const simImg = document.getElementById('simImage');
+            const simVid = document.getElementById('simVideo');
+            const simFooter = document.getElementById('simFooter');
+            const allowShare = document.getElementById('allowShare').checked;
+
+            simFooter.style.display = allowShare ? 'block' : 'none';
+
+            if (currentMediaType === 'image') {
+                simVid.style.display = 'none';
+                const isUpload = document.getElementById('uploadModeSwitch').checked;
+                const src = isUpload ? selectedFileBase64 : document.getElementById('mediaUrl').value;
+
+                if (src) {
+                    simImg.src = src;
+                    simImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else {
+                    simImg.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+            } else if (currentMediaType === 'video') {
+                simImg.style.display = 'none';
+                const vidSrc = document.getElementById('videoUrl').value;
+                const previewSrc = document.getElementById('videoPreviewUrl').value;
+
+                if (previewSrc) {
+                    simImg.src = previewSrc;
+                    simImg.style.display = 'block';
+                    simVid.style.display = 'none';
+                    placeholder.style.display = 'none';
+                } else if (vidSrc) {
+                    simVid.src = vidSrc;
+                    simVid.style.display = 'block';
+                    simImg.style.display = 'none';
+                    placeholder.style.display = 'none';
+                } else {
+                    simVid.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+            } else {
+                simImg.style.display = 'none';
+                simVid.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerHTML = '<i class="fas fa-code fs-1 text-success mb-2"></i><div>JSON Flex พร้อมส่ง</div>';
+            }
+        }
+
+        // ================= IMAGE COMPRESSION =================
+        function compressImage(file, maxDimension = 1200, quality = 0.85) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            } else {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        // ================= SENDING LOGIC =================
+        function setLoader(show, title = "กำลังประมวลผล...", text = "กรุณารอสักครู่") {
+            const loader = document.getElementById('loader');
+            document.getElementById('loaderTitle').innerText = title;
+            document.getElementById('loaderText').innerText = text;
+            loader.style.display = show ? 'flex' : 'none';
+        }
+
+        async function handleSendAction() {
+            const allowShare = document.getElementById('allowShare').checked;
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            let content = "";
+            let previewUrl = "";
+
+            try {
+                if (currentMediaType === 'json') {
+                    content = document.getElementById('jsonInput').value.trim();
+                    if (!content) throw new Error("กรุณากรอก JSON Flex Message");
+                    JSON.parse(content); // Validate JSON format
+                } else if (currentMediaType === 'video') {
+                    content = document.getElementById('videoUrl').value.trim();
+                    previewUrl = document.getElementById('videoPreviewUrl').value.trim();
+                    if (!content || !previewUrl) throw new Error("กรุณาระบุทั้ง URL วิดีโอ (.mp4) และ URL ภาพหน้าปก");
+                } else if (currentMediaType === 'image') {
+                    const isUpload = document.getElementById('uploadModeSwitch').checked;
+                    if (isUpload) {
+                        const fileInput = document.getElementById('mediaFile');
+                        if (!fileInput.files.length) throw new Error("กรุณาเลือกไฟล์รูปภาพที่ต้องการส่ง");
+
+                        setLoader(true, "กำลังอัปโหลดรูปภาพ...", "ระบบกำลังบีบอัดและอัปโหลดไฟล์ไปยังเซิร์ฟเวอร์");
+                        const compressedBase64 = await compressImage(fileInput.files[0]);
+
+                        const payload = {
+                            action: "uploadImage",
+                            base64: compressedBase64.split(',')[1],
+                            mimeType: "image/jpeg",
+                            fileName: `flex_${Date.now()}.jpg`
+                        };
+
+                        const response = await fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+                        if (result.status !== "success" && !result.success) {
+                            throw new Error(result.message || "อัปโหลดรูปล้มเหลว");
+                        }
+                        content = result.url; // ได้ CDN URL ที่ LINE ใช้งานได้ 100%
+                    } else {
+                        content = document.getElementById('mediaUrl').value.trim();
+                        if (!content) throw new Error("กรุณากรอก URL ของรูปภาพ");
+                    }
+                }
+
+                setLoader(true, "กำลังเปิด Share Target Picker...", "เลือกเพื่อนหรือกลุ่มใน LINE เพื่อส่งข้อความ");
+
+                const sharePayload = {
+                    type: currentMediaType,
+                    content,
+                    aspectRatio,
+                    previewUrl,
+                    allowShare
+                };
+
+                await processAndDispatchShare(sharePayload);
+
+            } catch (err) {
+                setLoader(false);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: err.message,
+                    confirmButtonColor: '#06C755'
+                });
+            }
+        }
+
+        async function executeReshare() {
+            setLoader(true, "กำลังเตรียมส่งต่อ...", "กำลังเปิดหน้าต่างเลือกห้องแชท");
+            await processAndDispatchShare({
+                type: reshareData.type,
+                content: reshareData.content,
+                aspectRatio: reshareData.ratio,
+                previewUrl: reshareData.preview,
+                allowShare: true
+            });
+        }
+
+        // ================= BUILD FLEX & DISPATCH =================
+        async function processAndDispatchShare(data) {
+            let flexMessageObject = null;
+
+            // สร้าง Viral Link สำหรับส่งต่อ
+            let reshareUri = `https://liff.line.me/${LIFF_ID}?action=reshare&type=${data.type}&ratio=${encodeURIComponent(data.aspectRatio)}&content=${encodeURIComponent(data.content)}`;
+            if (data.previewUrl) {
+                reshareUri += `&preview=${encodeURIComponent(data.previewUrl)}`;
+            }
+
+            const shareButtonComponent = {
+                type: "button",
+                style: "primary",
+                color: "#06C755",
+                height: "md",
+                action: {
+                    type: "uri",
+                    label: "♻️ ส่งต่อให้เพื่อน (Share)",
+                    uri: reshareUri
+                }
+            };
+
+            if (data.type === 'json') {
+                const parsed = JSON.parse(data.content);
+                // ตรวจสอบว่าถ้าส่งมาเฉพาะ Bubble ให้ห่อด้วย Flex Container
+                if (parsed.type === "bubble" || parsed.type === "carousel") {
+                    flexMessageObject = {
+                        type: "flex",
+                        altText: "คุณได้รับข้อความ Flex ใหม่",
+                        contents: parsed
+                    };
+                } else if (parsed.type === "flex") {
+                    flexMessageObject = parsed;
+                } else {
+                    flexMessageObject = {
+                        type: "flex",
+                        altText: "คุณได้รับข้อความ Flex ใหม่",
+                        contents: parsed
+                    };
+                }
+            } else {
+                let heroComponent = {};
+                if (data.type === 'image') {
+                    heroComponent = {
+                        type: "image",
+                        url: data.content,
+                        size: "full",
+                        aspectRatio: data.aspectRatio,
+                        aspectMode: "cover",
+                        action: { type: "uri", uri: data.content }
+                    };
+                } else if (data.type === 'video') {
+                    heroComponent = {
+                        type: "video",
+                        url: data.content,
+                        previewUrl: data.previewUrl || data.content,
+                        aspectRatio: data.aspectRatio,
+                        altContent: {
+                            type: "image",
+                            url: data.previewUrl || data.content,
+                            size: "full",
+                            aspectRatio: data.aspectRatio,
+                            aspectMode: "cover"
+                        }
+                    };
+                }
+
+                let bubble = {
+                    type: "bubble",
+                    size: "giga",
+                    hero: heroComponent
+                };
+
+                if (data.allowShare) {
+                    bubble.footer = {
+                        type: "box",
+                        layout: "vertical",
+                        spacing: "sm",
+                        contents: [shareButtonComponent]
+                    };
+                }
+
+                flexMessageObject = {
+                    type: "flex",
+                    altText: "คุณได้รับข้อความใหม่ (Media Share)",
+                    contents: bubble
+                };
+            }
+
+            // บันทึก Activity Log ลง Google Sheet ผ่าน GAS แบบ Asynchronous
+            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "YOUR_GAS_URL_HERE") {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "log",
+                        userId: userProfile ? userProfile.userId : "guest",
+                        displayName: userProfile ? userProfile.displayName : "Guest User",
+                        pictureUrl: userProfile ? userProfile.pictureUrl : "",
+                        type: data.type,
+                        content: data.content,
+                        aspectRatio: data.aspectRatio,
+                        allowShare: data.allowShare
+                    })
+                }).catch(err => console.log("Log error:", err));
+            }
+
+            // เรียกใช้ LINE LIFF Share Target Picker
+            if (typeof liff !== 'undefined' && liff.isApiAvailable('shareTargetPicker')) {
+                try {
+                    const result = await liff.shareTargetPicker([flexMessageObject]);
+                    setLoader(false);
+                    if (result) {
+                        Swal.fire({
+                            title: 'ส่งสำเร็จเรียบร้อย!',
+                            text: 'ข้อความถูกส่งไปยังห้องแชทที่คุณเลือกแล้ว',
+                            icon: 'success',
+                            confirmButtonColor: '#06C755'
+                        }).then(() => {
+                            if (isReshareMode) {
+                                liff.closeWindow();
+                            }
+                        });
+                    }
+                } catch (pickerErr) {
+                    setLoader(false);
+                    Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถส่งข้อความได้: ' + pickerErr.message, 'error');
+                }
+            } else {
+                setLoader(false);
+                // กรณีทดสอบบนเบราว์เซอร์ทั่วไปที่ไม่มี LIFF Share Target Picker
+                Swal.fire({
+                    title: 'อุปกรณ์ไม่รองรับ LIFF Picker',
+                    html: `
+                        <p class="text-secondary small">กรุณาเปิดลิงก์นี้ในแอปพลิเคชัน LINE เพื่อใช้งาน Share Target Picker</p>
+                        <div class="text-start p-2 bg-light rounded small font-monospace" style="max-height: 180px; overflow-y: auto;">
+                            ${JSON.stringify(flexMessageObject, null, 2)}
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonColor: '#06C755'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
