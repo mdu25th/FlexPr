@@ -489,13 +489,20 @@
             <div id="jsonSection" class="d-none">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <label class="form-label m-0">Flex Message JSON Code</label>
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success"
-                        onclick="formatJsonInput()">
-                        <i class="fas fa-align-left"></i> Format JSON
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success me-3"
+                            onclick="loadSampleJson()">
+                            <i class="fas fa-file-code me-1"></i> โหลดตัวอย่าง
+                        </button>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-primary"
+                            onclick="formatJsonInput()">
+                            <i class="fas fa-align-left me-1"></i> จัดรูป JSON
+                        </button>
+                    </div>
                 </div>
-                <textarea class="form-control font-monospace small" id="jsonInput" rows="6"
+                <textarea class="form-control font-monospace small" id="jsonInput" rows="7"
                     placeholder='{"type": "bubble", ...}' oninput="onJsonInputChanged()"></textarea>
+                <div class="form-text small text-muted">รองรับทั้ง Bubble, Carousel, Flex Container หรือ JSON จาก LINE Bot Designer</div>
             </div>
 
             <!-- Aspect Ratio Selector -->
@@ -545,6 +552,8 @@
                         <img id="simImage" src="" alt="Hero" style="display: none;">
                         <video id="simVideo" controls src="" style="display: none;"></video>
                     </div>
+                    <!-- Dynamic Body Preview -->
+                    <div id="simBody" class="p-3 bg-white text-start" style="display: none; border-top: 1px solid #f1f5f9;"></div>
                     <div class="line-share-button-preview" id="simFooter">
                         <div class="line-btn-mock">
                             <i class="fas fa-share-nodes"></i> ส่งต่อให้เพื่อน (Share)
@@ -811,13 +820,182 @@
             updateSimulator();
         }
 
+        // ================= JSON FLEX HELPERS =================
+        function loadSampleJson() {
+            const sample = {
+                "type": "bubble",
+                "size": "giga",
+                "hero": {
+                    "type": "image",
+                    "url": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1080&q=80",
+                    "size": "full",
+                    "aspectRatio": "20:13",
+                    "aspectMode": "cover"
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "📢 ประกาศกิจกรรม นพค.25",
+                            "weight": "bold",
+                            "size": "xl",
+                            "color": "#06C755"
+                        },
+                        {
+                            "type": "text",
+                            "text": "ขอเชิญชวนทุกท่านร่วมติดตามข่าวสารและร่วมกิจกรรมสำคัญประจำสัปดาห์ได้ที่นี่",
+                            "size": "sm",
+                            "color": "#666666",
+                            "wrap": true
+                        }
+                    ]
+                }
+            };
+            document.getElementById('jsonInput').value = JSON.stringify(sample, null, 2);
+            updateSimulator();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        function extractAltText(contents) {
+            try {
+                if (!contents) return null;
+                const bubble = contents.type === 'carousel' ? (contents.contents && contents.contents[0]) : contents;
+                if (bubble && bubble.body && bubble.body.contents) {
+                    for (const item of bubble.body.contents) {
+                        if (item.type === 'text' && item.text) return item.text.substring(0, 50);
+                    }
+                }
+                if (bubble && bubble.header && bubble.header.contents) {
+                    for (const item of bubble.header.contents) {
+                        if (item.type === 'text' && item.text) return item.text.substring(0, 50);
+                    }
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function validateHttpsUrls(obj) {
+            if (!obj || typeof obj !== 'object') return;
+            if (obj.url && typeof obj.url === 'string' && obj.url.startsWith('http://')) {
+                obj.url = obj.url.replace(/^http:\/\//i, 'https://');
+            }
+            if (obj.previewUrl && typeof obj.previewUrl === 'string' && obj.previewUrl.startsWith('http://')) {
+                obj.previewUrl = obj.previewUrl.replace(/^http:\/\//i, 'https://');
+            }
+            for (const key of Object.keys(obj)) {
+                if (typeof obj[key] === 'object') {
+                    validateHttpsUrls(obj[key]);
+                }
+            }
+        }
+
+        function parseAndNormalizeFlex(jsonString) {
+            if (!jsonString || typeof jsonString !== 'string') {
+                throw new Error("กรุณากรอกข้อมูล JSON Flex Message");
+            }
+
+            // 1. ลบ Markdown Code Blocks (```json ... ```) ถ้ามี
+            let cleaned = jsonString.trim();
+            if (cleaned.startsWith('```')) {
+                cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+            }
+
+            let parsed;
+            try {
+                parsed = JSON.parse(cleaned);
+            } catch (e) {
+                throw new Error("รูปแบบ JSON ผิดไวยากรณ์: " + e.message);
+            }
+
+            // 2. กรณีผู้ใช้วาง { messages: [...] }
+            if (parsed && parsed.messages && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+                parsed = parsed.messages[0];
+            }
+
+            // 3. กรณีผู้ใช้วาง Array [...]
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                parsed = parsed[0];
+            }
+
+            if (!parsed || typeof parsed !== 'object') {
+                throw new Error("โครงสร้าง JSON ต้องเป็น Object");
+            }
+
+            // 4. แปลงให้อยู่ในโครงสร้าง Flex Message
+            let flexObject = null;
+
+            if (parsed.type === "bubble" || parsed.type === "carousel") {
+                flexObject = {
+                    type: "flex",
+                    altText: extractAltText(parsed) || "คุณได้รับข้อความ Flex ใหม่",
+                    contents: parsed
+                };
+            } else if (parsed.type === "flex") {
+                flexObject = parsed;
+                if (!flexObject.altText || flexObject.altText.trim() === '') {
+                    flexObject.altText = extractAltText(flexObject.contents) || "คุณได้รับข้อความ Flex ใหม่";
+                }
+                if (!flexObject.contents || (flexObject.contents.type !== "bubble" && flexObject.contents.type !== "carousel")) {
+                    throw new Error("ภายใน flex message ต้องมี contents เป็นประเภท 'bubble' หรือ 'carousel'");
+                }
+            } else if (parsed.contents && (parsed.contents.type === "bubble" || parsed.contents.type === "carousel")) {
+                flexObject = {
+                    type: "flex",
+                    altText: parsed.altText || extractAltText(parsed.contents) || "คุณได้รับข้อความ Flex ใหม่",
+                    contents: parsed.contents
+                };
+            } else {
+                throw new Error("โครงสร้าง JSON ต้องมีประเภท (type) เป็น 'bubble', 'carousel' หรือ 'flex'");
+            }
+
+            // ตรวจสอบและแปลง http:// เป็น https:// อัตโนมัติ เพื่อไม่ให้ LINE ปฏิเสธ
+            validateHttpsUrls(flexObject.contents);
+
+            return flexObject;
+        }
+
+        function renderBodyPreviewHtml(contents) {
+            let html = '';
+            if (!Array.isArray(contents)) return '';
+            for (const item of contents) {
+                if (item.type === 'text' && item.text) {
+                    const isBold = item.weight === 'bold';
+                    const color = item.color || '#333333';
+                    const size = item.size === 'xl' || item.size === 'lg' ? '0.98rem' : '0.82rem';
+                    html += `<div style="font-weight:${isBold ? '700':'400'}; color:${color}; font-size:${size}; margin-bottom:4px; line-height:1.4;">${escapeHtml(item.text)}</div>`;
+                } else if (item.type === 'box' && item.contents) {
+                    html += renderBodyPreviewHtml(item.contents);
+                }
+            }
+            return html;
+        }
+
         function formatJsonInput() {
             const input = document.getElementById('jsonInput');
             try {
-                const parsed = JSON.parse(input.value);
-                input.value = JSON.stringify(parsed, null, 2);
+                const raw = input.value.trim();
+                if (!raw) return;
+                const normalized = parseAndNormalizeFlex(raw);
+                input.value = JSON.stringify(normalized.contents, null, 2);
+                updateSimulator();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'จัดรูปแบบสำเร็จ',
+                    text: 'ตรวจสอบโครงสร้างและจัดระเบียบ JSON เรียบร้อยแล้ว',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
             } catch (err) {
-                Swal.fire('ข้อผิดพลาด', 'รูปแบบ JSON ไม่ถูกต้อง: ' + err.message, 'warning');
+                Swal.fire('ข้อผิดพลาด', err.message, 'warning');
             }
         }
 
@@ -825,12 +1003,14 @@
             const placeholder = document.getElementById('simPlaceholder');
             const simImg = document.getElementById('simImage');
             const simVid = document.getElementById('simVideo');
+            const simBody = document.getElementById('simBody');
             const simFooter = document.getElementById('simFooter');
             const allowShare = document.getElementById('allowShare').checked;
 
             simFooter.style.display = allowShare ? 'block' : 'none';
 
             if (currentMediaType === 'image') {
+                if (simBody) simBody.style.display = 'none';
                 simVid.style.display = 'none';
                 const isUpload = document.getElementById('uploadModeSwitch').checked;
                 const src = isUpload ? selectedFileBase64 : document.getElementById('mediaUrl').value;
@@ -844,6 +1024,7 @@
                     placeholder.style.display = 'block';
                 }
             } else if (currentMediaType === 'video') {
+                if (simBody) simBody.style.display = 'none';
                 simImg.style.display = 'none';
                 const vidSrc = document.getElementById('videoUrl').value;
                 const previewSrc = document.getElementById('videoPreviewUrl').value;
@@ -862,11 +1043,96 @@
                     simVid.style.display = 'none';
                     placeholder.style.display = 'block';
                 }
-            } else {
-                simImg.style.display = 'none';
+            } else if (currentMediaType === 'json') {
                 simVid.style.display = 'none';
-                placeholder.style.display = 'block';
-                placeholder.innerHTML = '<i class="fas fa-code fs-1 text-success mb-2"></i><div>JSON Flex พร้อมส่ง</div>';
+                const jsonVal = document.getElementById('jsonInput').value.trim();
+
+                if (!jsonVal) {
+                    simImg.style.display = 'none';
+                    if (simBody) simBody.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    placeholder.innerHTML = '<i class="fas fa-code fs-1 text-success mb-2"></i><div>วางโค้ด Flex JSON เพื่อดูตัวอย่าง</div>';
+                    document.getElementById('simulatorRatioLabel').innerText = "JSON Flex";
+                    return;
+                }
+
+                try {
+                    const normalized = parseAndNormalizeFlex(jsonVal);
+                    const bubble = normalized.contents.type === 'carousel' ? normalized.contents.contents[0] : normalized.contents;
+                    
+                    // ค้นหา Hero Image หรือ Preview Image
+                    let heroUrl = null;
+                    let heroRatio = "1.51:1";
+
+                    if (bubble.hero) {
+                        if (bubble.hero.type === 'image' && bubble.hero.url) {
+                            heroUrl = bubble.hero.url;
+                            heroRatio = bubble.hero.aspectRatio || "1.51:1";
+                        } else if (bubble.hero.type === 'video') {
+                            heroUrl = bubble.hero.previewUrl;
+                            heroRatio = bubble.hero.aspectRatio || "16:9";
+                        }
+                    }
+
+                    // ถ้าไม่มี hero ให้ลองค้นหา Image แรกใน body
+                    if (!heroUrl && bubble.body && bubble.body.contents) {
+                        const findImage = (contents) => {
+                            for (const item of contents) {
+                                if (item.type === 'image' && item.url) return item;
+                                if (item.type === 'box' && item.contents) {
+                                    const found = findImage(item.contents);
+                                    if (found) return found;
+                                }
+                            }
+                            return null;
+                        };
+                        const foundImg = findImage(bubble.body.contents);
+                        if (foundImg) {
+                            heroUrl = foundImg.url;
+                            heroRatio = foundImg.aspectRatio || "1.51:1";
+                        }
+                    }
+
+                    if (heroUrl) {
+                        simImg.src = heroUrl;
+                        simImg.style.display = 'block';
+                        placeholder.style.display = 'none';
+
+                        // ปรับอัตราส่วนกรอบตามที่ระบุใน JSON
+                        const frame = document.getElementById('simHeroFrame');
+                        frame.className = 'line-hero-frame';
+                        const cssRatioClass = 'ratio-' + heroRatio.replace(/[:.]/g, '_');
+                        frame.classList.add(cssRatioClass);
+                        document.getElementById('simulatorRatioLabel').innerText = `${heroRatio} (${normalized.contents.type})`;
+                    } else {
+                        simImg.style.display = 'none';
+                        placeholder.style.display = 'block';
+                        placeholder.innerHTML = `<i class="fas fa-check-circle fs-1 text-success mb-2"></i><div class="fw-bold">Flex ${normalized.contents.type} ถูกต้อง</div><div class="text-secondary small mt-1">(ไม่มี Hero Image ในโค้ด)</div>`;
+                        document.getElementById('simulatorRatioLabel').innerText = normalized.contents.type;
+                    }
+
+                    // เรนเดอร์ข้อความจาก Body (ถ้ามี)
+                    let bodyPreviewHtml = '';
+                    if (bubble.body && bubble.body.contents) {
+                        bodyPreviewHtml = renderBodyPreviewHtml(bubble.body.contents);
+                    }
+
+                    if (simBody) {
+                        if (bodyPreviewHtml) {
+                            simBody.innerHTML = bodyPreviewHtml;
+                            simBody.style.display = 'block';
+                        } else {
+                            simBody.style.display = 'none';
+                        }
+                    }
+
+                } catch (err) {
+                    simImg.style.display = 'none';
+                    if (simBody) simBody.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    placeholder.innerHTML = `<i class="fas fa-triangle-exclamation fs-2 text-warning mb-2"></i><div class="small text-danger fw-bold">JSON ไม่ถูกต้อง:</div><div class="text-secondary" style="font-size:0.75rem;">${err.message}</div>`;
+                    document.getElementById('simulatorRatioLabel').innerText = "Syntax Error";
+                }
             }
         }
 
@@ -923,8 +1189,9 @@
             try {
                 if (currentMediaType === 'json') {
                     content = document.getElementById('jsonInput').value.trim();
-                    if (!content) throw new Error("กรุณากรอก JSON Flex Message");
-                    JSON.parse(content); // Validate JSON format
+                    if (!content) throw new Error("กรุณากรอกหรือวางโค้ด JSON Flex Message");
+                    const normalizedObj = parseAndNormalizeFlex(content);
+                    content = JSON.stringify(normalizedObj);
                 } else if (currentMediaType === 'video') {
                     content = document.getElementById('videoUrl').value.trim();
                     previewUrl = document.getElementById('videoPreviewUrl').value.trim();
@@ -1018,22 +1285,19 @@
             };
 
             if (data.type === 'json') {
-                const parsed = JSON.parse(data.content);
-                // ตรวจสอบว่าถ้าส่งมาเฉพาะ Bubble ให้ห่อด้วย Flex Container
-                if (parsed.type === "bubble" || parsed.type === "carousel") {
-                    flexMessageObject = {
-                        type: "flex",
-                        altText: "คุณได้รับข้อความ Flex ใหม่",
-                        contents: parsed
-                    };
-                } else if (parsed.type === "flex") {
-                    flexMessageObject = parsed;
-                } else {
-                    flexMessageObject = {
-                        type: "flex",
-                        altText: "คุณได้รับข้อความ Flex ใหม่",
-                        contents: parsed
-                    };
+                flexMessageObject = parseAndNormalizeFlex(data.content);
+
+                // ถ้าผู้ใช้เลือกอนุญาตให้ส่งต่อ (allowShare) และเป็น Bubble เดียว ให้แทรกปุ่มส่งต่อใน footer ถ้ายังไม่มี
+                if (data.allowShare && flexMessageObject.contents && flexMessageObject.contents.type === 'bubble') {
+                    const bubble = flexMessageObject.contents;
+                    if (!bubble.footer) {
+                        bubble.footer = {
+                            type: "box",
+                            layout: "vertical",
+                            spacing: "sm",
+                            contents: [shareButtonComponent]
+                        };
+                    }
                 }
             } else {
                 let heroComponent = {};
@@ -1120,7 +1384,18 @@
                     }
                 } catch (pickerErr) {
                     setLoader(false);
-                    Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถส่งข้อความได้: ' + pickerErr.message, 'error');
+                    console.error("shareTargetPicker Error Details:", pickerErr);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาดในการส่ง Flex',
+                        html: `
+                            <p class="text-danger small mb-2"><b>สาเหตุ:</b> ${escapeHtml(pickerErr.message || pickerErr.toString())}</p>
+                            <div class="alert alert-light text-start small p-2 font-monospace" style="max-height: 140px; overflow-y: auto;">
+                                ${escapeHtml(JSON.stringify(flexMessageObject, null, 2))}
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonColor: '#06C755'
+                    });
                 }
             } else {
                 setLoader(false);
