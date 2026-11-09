@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,12 +8,13 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 Pro / Free CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    
+
     <style>
         :root {
             --line-green: #06C755;
@@ -138,7 +140,8 @@
             margin-bottom: 6px;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 12px;
             border: 1.5px solid #e2e8f0;
             padding: 10px 14px;
@@ -146,7 +149,8 @@
             transition: var(--transition-smooth);
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--line-green);
             box-shadow: 0 0 0 3.5px rgba(6, 199, 85, 0.15);
         }
@@ -182,11 +186,12 @@
 
         /* LINE Chat Message Simulator (High Fidelity Preview) */
         .simulator-container {
-            background: #849eb3; /* สีพื้นหลังห้องแชท LINE */
+            background: #849eb3;
+            /* สีพื้นหลังห้องแชท LINE */
             border-radius: 16px;
             padding: 14px;
             margin: 18px 0;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.12);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12);
         }
 
         .simulator-header {
@@ -221,7 +226,8 @@
             justify-content: center;
         }
 
-        .line-hero-frame img, .line-hero-frame video {
+        .line-hero-frame img,
+        .line-hero-frame video {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -275,7 +281,8 @@
             gap: 10px;
         }
 
-        .btn-send-main:hover, .btn-send-main:active {
+        .btn-send-main:hover,
+        .btn-send-main:active {
             transform: translateY(-1.5px);
             box-shadow: 0 12px 24px rgba(6, 199, 85, 0.45);
             color: #ffffff;
@@ -310,8 +317,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Reshare mode banner */
@@ -325,16 +337,48 @@
         }
 
         /* Aspect ratio ratios */
-        .ratio-1-1, .ratio-1_1 { aspect-ratio: 1 / 1; }
-        .ratio-1_51-1, .ratio-1_51_1 { aspect-ratio: 1.51 / 1; }
-        .ratio-1_91-1, .ratio-1_91_1 { aspect-ratio: 1.91 / 1; }
-        .ratio-4-3, .ratio-4_3 { aspect-ratio: 4 / 3; }
-        .ratio-16-9, .ratio-16_9 { aspect-ratio: 16 / 9; }
-        .ratio-20-13, .ratio-20_13 { aspect-ratio: 20 / 13; }
-        .ratio-9-16, .ratio-9_16 { aspect-ratio: 9 / 16; }
-        .ratio-3-4, .ratio-3_4 { aspect-ratio: 3 / 4; }
+        .ratio-1-1,
+        .ratio-1_1 {
+            aspect-ratio: 1 / 1;
+        }
+
+        .ratio-1_51-1,
+        .ratio-1_51_1 {
+            aspect-ratio: 1.51 / 1;
+        }
+
+        .ratio-1_91-1,
+        .ratio-1_91_1 {
+            aspect-ratio: 1.91 / 1;
+        }
+
+        .ratio-4-3,
+        .ratio-4_3 {
+            aspect-ratio: 4 / 3;
+        }
+
+        .ratio-16-9,
+        .ratio-16_9 {
+            aspect-ratio: 16 / 9;
+        }
+
+        .ratio-20-13,
+        .ratio-20_13 {
+            aspect-ratio: 20 / 13;
+        }
+
+        .ratio-9-16,
+        .ratio-9_16 {
+            aspect-ratio: 9 / 16;
+        }
+
+        .ratio-3-4,
+        .ratio-3_4 {
+            aspect-ratio: 3 / 4;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="main-container">
@@ -359,7 +403,8 @@
             <div class="user-pill" id="userPill">
                 <img id="userAvatar" src="https://static.line-scdn.net/line_common/image/favicon.ico" alt="Avatar">
                 <span id="userName" class="fw-semibold">กำลังเชื่อมต่อ LINE...</span>
-                <button type="button" class="btn btn-link text-danger p-0 ms-2 d-none" id="btnLogout" title="ออกจากระบบ LINE" onclick="handleLogout()" style="text-decoration: none; font-size: 0.82rem;">
+                <button type="button" class="btn btn-link text-danger p-0 ms-2 d-none" id="btnLogout"
+                    title="ออกจากระบบ LINE" onclick="handleLogout()" style="text-decoration: none; font-size: 0.82rem;">
                     <i class="fas fa-right-from-bracket"></i>
                 </button>
             </div>
@@ -368,7 +413,8 @@
         <!-- ================= MAIN EDIT MODE ================= -->
         <div id="mainForm">
             <!-- Media Type Selector -->
-            <label class="form-label"><i class="fas fa-layer-group me-1 text-success"></i> รูปแบบสื่อที่ต้องการส่ง</label>
+            <label class="form-label"><i class="fas fa-layer-group me-1 text-success"></i>
+                รูปแบบสื่อที่ต้องการส่ง</label>
             <div class="type-segmented">
                 <button type="button" class="btn-type active" id="btnTypeImage" onclick="selectMediaType('image')">
                     <i class="fas fa-image"></i> รูปภาพ
@@ -384,9 +430,11 @@
             <!-- Preset Selector -->
             <div class="preset-bar">
                 <i class="fas fa-magic text-warning"></i>
-                <select class="form-select form-select-sm border-0 bg-transparent fw-semibold" id="presetSelect" onchange="applyPreset(this.value)">
+                <select class="form-select form-select-sm border-0 bg-transparent fw-semibold" id="presetSelect"
+                    onchange="applyPreset(this.value)">
                     <option value="">⚡ เลือกแม่แบบสำเร็จรูป (Presets)...</option>
                     <option value="announcement">📢 ประชาสัมพันธ์ข่าวสาร (1.51:1)</option>
+                    <option value="standard_4_3">🖼️ การ์ดรูปถ่ายมาตรฐาน (4:3)</option>
                     <option value="portrait_3_4">📸 ภาพแนวตั้ง Portrait (3:4)</option>
                     <option value="poster">📱 โปสเตอร์แนวตั้ง Story (9:16)</option>
                     <option value="square">🛍️ แบนเนอร์จัตุรัสสินค้า (1:1)</option>
@@ -401,22 +449,26 @@
                         <i class="fas fa-cloud-arrow-up text-success fs-5"></i>
                         <div>
                             <div class="fw-bold text-dark small">อัปโหลดไฟล์จากเครื่อง</div>
-                            <div class="text-secondary" style="font-size: 0.72rem;">แปลงเป็น Direct CDN URL อัตโนมัติ</div>
+                            <div class="text-secondary" style="font-size: 0.72rem;">แปลงเป็น Direct CDN URL อัตโนมัติ
+                            </div>
                         </div>
                     </div>
                     <div class="form-check form-switch m-0">
-                        <input class="form-check-input" type="checkbox" id="uploadModeSwitch" onchange="toggleImageMode()">
+                        <input class="form-check-input" type="checkbox" id="uploadModeSwitch"
+                            onchange="toggleImageMode()">
                     </div>
                 </div>
 
                 <div id="imageUrlBox">
                     <label class="form-label">URL รูปภาพ (HTTPS)</label>
-                    <input type="url" class="form-control" id="mediaUrl" placeholder="https://example.com/banner.jpg" oninput="onInputChanged()">
+                    <input type="url" class="form-control" id="mediaUrl" placeholder="https://example.com/banner.jpg"
+                        oninput="onInputChanged()">
                 </div>
 
                 <div id="imageUploadBox" class="d-none">
                     <label class="form-label">เลือกไฟล์รูปภาพ (JPG, PNG, WEBP)</label>
-                    <input type="file" class="form-control" id="mediaFile" accept="image/*" onchange="onFileSelected(event)">
+                    <input type="file" class="form-control" id="mediaFile" accept="image/*"
+                        onchange="onFileSelected(event)">
                     <div class="form-text small text-muted">ระบบบีบอัดรูปภาพให้อัตโนมัติ เพื่อส่งได้รวดเร็วทันใจ</div>
                 </div>
             </div>
@@ -424,27 +476,32 @@
             <div id="videoSection" class="d-none">
                 <div class="mb-3">
                     <label class="form-label">URL วิดีโอตรง (.mp4)</label>
-                    <input type="url" class="form-control" id="videoUrl" placeholder="https://example.com/video.mp4" oninput="onInputChanged()">
+                    <input type="url" class="form-control" id="videoUrl" placeholder="https://example.com/video.mp4"
+                        oninput="onInputChanged()">
                 </div>
                 <div class="mb-2">
                     <label class="form-label">URL ภาพปกวิดีโอ (Preview Image)</label>
-                    <input type="url" class="form-control" id="videoPreviewUrl" placeholder="https://example.com/cover.jpg" oninput="onInputChanged()">
+                    <input type="url" class="form-control" id="videoPreviewUrl"
+                        placeholder="https://example.com/cover.jpg" oninput="onInputChanged()">
                 </div>
             </div>
 
             <div id="jsonSection" class="d-none">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <label class="form-label m-0">Flex Message JSON Code</label>
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success" onclick="formatJsonInput()">
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success"
+                        onclick="formatJsonInput()">
                         <i class="fas fa-align-left"></i> Format JSON
                     </button>
                 </div>
-                <textarea class="form-control font-monospace small" id="jsonInput" rows="6" placeholder='{"type": "bubble", ...}' oninput="onJsonInputChanged()"></textarea>
+                <textarea class="form-control font-monospace small" id="jsonInput" rows="6"
+                    placeholder='{"type": "bubble", ...}' oninput="onJsonInputChanged()"></textarea>
             </div>
 
             <!-- Aspect Ratio Selector -->
             <div class="mt-3" id="ratioWrapper">
-                <label class="form-label"><i class="fas fa-crop-simple me-1 text-success"></i> สัดส่วนรูปภาพ (Aspect Ratio)</label>
+                <label class="form-label"><i class="fas fa-crop-simple me-1 text-success"></i> สัดส่วนรูปภาพ (Aspect
+                    Ratio)</label>
                 <select class="form-select" id="aspectRatio" onchange="onAspectRatioChanged()">
                     <option value="1.51:1" selected>1.51:1 (มาตรฐาน LINE แนวนอน)</option>
                     <option value="1:1">1:1 (สี่เหลี่ยมจัตุรัส Square)</option>
@@ -464,7 +521,8 @@
                         <label class="form-check-label fw-bold text-dark" for="allowShare">
                             <i class="fas fa-retweet text-success me-1"></i> อนุญาตให้ส่งต่อ (Viral Share)
                         </label>
-                        <input class="form-check-input ms-0" type="checkbox" id="allowShare" checked onchange="updateSimulator()">
+                        <input class="form-check-input ms-0" type="checkbox" id="allowShare" checked
+                            onchange="updateSimulator()">
                     </div>
                     <div class="text-secondary small mt-1" style="font-size: 0.76rem;">
                         เพิ่มปุ่ม "ส่งต่อให้เพื่อน" ที่ท้ายการ์ด เพื่อให้ผู้รับสามารถกดแชร์ต่อไปยังกลุ่มอื่นได้ทันที
@@ -512,7 +570,8 @@
             <div class="simulator-container">
                 <div class="line-bubble-card">
                     <div class="line-hero-frame" id="reshareHeroFrame">
-                        <img id="resharePreviewImg" src="" alt="Reshare Content" style="max-height: 280px; width:100%; object-fit:cover;">
+                        <img id="resharePreviewImg" src="" alt="Reshare Content"
+                            style="max-height: 280px; width:100%; object-fit:cover;">
                     </div>
                 </div>
             </div>
@@ -529,7 +588,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ================= CONFIGURATION =================
-        const LIFF_ID = "2008762104-jiki8XpC"; 
+        const LIFF_ID = "2008762104-jiki8XpC";
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgs-2QMfB6Oit0jv631k10u9esjPr7V-4pOggUNzAFSpLpUWzDzP_98oYxT8tNg_pz/exec";
 
         let currentMediaType = 'image';
@@ -568,7 +627,7 @@
                 if (userProfile.pictureUrl) {
                     document.getElementById('userAvatar').src = userProfile.pictureUrl;
                 }
-                
+
                 // แสดงปุ่ม Logout เพื่อให้สลับบัญชีได้
                 const logoutBtn = document.getElementById('btnLogout');
                 if (logoutBtn) logoutBtn.classList.remove('d-none');
@@ -578,7 +637,7 @@
             } catch (err) {
                 setLoader(false);
                 console.error("LIFF Init Error:", err);
-                
+
                 Swal.fire({
                     icon: 'error',
                     title: 'การเข้าสู่ระบบ LINE ขัดข้อง',
@@ -649,7 +708,7 @@
         // ================= UI CONTROLS =================
         function selectMediaType(type) {
             currentMediaType = type;
-            
+
             // ปรับปุ่ม Segmented
             document.querySelectorAll('.type-segmented .btn-type').forEach(btn => btn.classList.remove('active'));
             if (type === 'image') document.getElementById('btnTypeImage').classList.add('active');
@@ -669,7 +728,7 @@
             const isUpload = document.getElementById('uploadModeSwitch').checked;
             document.getElementById('imageUrlBox').classList.toggle('d-none', isUpload);
             document.getElementById('imageUploadBox').classList.toggle('d-none', !isUpload);
-            
+
             selectedFileBase64 = null;
             document.getElementById('mediaFile').value = '';
             updateSimulator();
@@ -678,7 +737,7 @@
         function onAspectRatioChanged() {
             const ratio = document.getElementById('aspectRatio').value;
             document.getElementById('simulatorRatioLabel').innerText = ratio;
-            
+
             const frame = document.getElementById('simHeroFrame');
             // รีเซ็ตคลาส ratio ทั้งหมด
             frame.className = 'line-hero-frame';
@@ -696,6 +755,12 @@
                 toggleImageMode();
                 document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1080&q=80';
                 document.getElementById('aspectRatio').value = '1.51:1';
+            } else if (presetKey === 'standard_4_3') {
+                selectMediaType('image');
+                document.getElementById('uploadModeSwitch').checked = false;
+                toggleImageMode();
+                document.getElementById('mediaUrl').value = 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1080&q=80';
+                document.getElementById('aspectRatio').value = '4:3';
             } else if (presetKey === 'portrait_3_4') {
                 selectMediaType('image');
                 document.getElementById('uploadModeSwitch').checked = false;
@@ -1075,4 +1140,5 @@
         }
     </script>
 </body>
+
 </html>
